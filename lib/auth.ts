@@ -6,6 +6,7 @@ import { mkdir, stat } from 'node:fs/promises'
 import { join as pathJoin } from 'node:path'
 import { Readable } from 'node:stream'
 import { type GeneratedKey } from './@types'
+import { decodetoBuffer } from './util'
 
 type Action = 'write' | 'read' | 'remove';
 const fixFileName = (file?: string) => file?.replace(/\//g, '__')?.replace(/:/g, '-')
@@ -36,7 +37,10 @@ export const useSafeMultiAuthState = async(key: GeneratedKey, folder: string): R
 					fdr.pipe(decipher).on('data', (ch) => {
 						collected = Buffer.concat([collected, Buffer.from(ch)])
 					}).on('end', () => {
-						return resolve(JSON.parse(collected.toString('utf8')))
+						const json = JSON.parse(collected.toString('utf8'))
+						decodetoBuffer(json)
+
+						return resolve(json)
 					}).on('error', reject)
 				} catch{
 					return resolve(undefined as V)
