@@ -1,5 +1,6 @@
 export const decodetoBuffer = <T extends Object>(object: T): void => {
 	if(typeof object !== 'object' || Array.isArray(object)) {
+		console.log(object)
 		throw new TypeError('Invalid input')
 	}
 
@@ -9,8 +10,16 @@ export const decodetoBuffer = <T extends Object>(object: T): void => {
 			if('type' in value && value.type === 'Buffer') {
 				Reflect.set(object, key, Buffer.from(value))
 			} else {
-				if(Array.isArray(value) || typeof value !== 'object') {
+				if(typeof value !== 'object') {
 					continue
+				} else if(Array.isArray(value)) {
+					for(const valueInObject of value.filter(v => typeof v === 'object')) {
+						if('type' in valueInObject && valueInObject.type === 'Buffer') {
+							Reflect.set(value, value.indexOf(valueInObject), Buffer.from(valueInObject))
+						} else {
+							decodetoBuffer(valueInObject)
+						}
+					}
 				} else {
 					decodetoBuffer(value)
 				}

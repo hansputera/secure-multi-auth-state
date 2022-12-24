@@ -37,10 +37,7 @@ export const useSafeMultiAuthState = async(key: GeneratedKey, folder: string): R
 					fdr.pipe(decipher).on('data', (ch) => {
 						collected = Buffer.concat([collected, Buffer.from(ch)])
 					}).on('end', () => {
-						const json = JSON.parse(collected.toString('utf8'))
-						decodetoBuffer(json)
-
-						return resolve(json)
+						return resolve(JSON.parse(collected.toString('utf8')))
 					}).on('error', reject)
 				} catch{
 					return resolve(undefined as V)
@@ -87,7 +84,9 @@ export const useSafeMultiAuthState = async(key: GeneratedKey, folder: string): R
 						ids.map(
 							async id => {
 								let value = await action('read', `${type}-${id}.json`)
-								if(type === 'app-state-sync-key' && value) {
+								if(typeof value === 'object') {
+									decodetoBuffer(value as object)
+								} else if(type === 'app-state-sync-key' && value) {
 									value = WAProto.Message.AppStateSyncKeyData.fromObject(value)
 								}
 
