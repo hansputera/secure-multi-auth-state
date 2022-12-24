@@ -1,6 +1,6 @@
 export const decodetoBuffer = <T extends Object>(object: T): void => {
-	if(typeof object !== 'object' || Array.isArray(object)) {
-		throw new TypeError('Invalid input: ' + object.toString())
+	if(typeof object !== 'object') {
+		throw new TypeError('Invalid input: ' + object)
 	}
 
 	// const regexBase64 = new RegExp(/^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/);
