@@ -1,6 +1,6 @@
 {
   "name": "safe-usemultiauthstate",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Secure .useMultiAuthState to store your sessions",
   "main": "./dist/index.js",
   "scripts": {

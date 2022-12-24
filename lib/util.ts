@@ -1,6 +1,5 @@
 export const decodetoBuffer = <T extends Object>(object: T): void => {
 	if(typeof object !== 'object' || Array.isArray(object)) {
-		console.log(object)
 		throw new TypeError('Invalid input')
 	}
 
