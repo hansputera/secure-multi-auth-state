@@ -89,6 +89,13 @@ export const useSafeMultiAuthState = async(key: GeneratedKey, folder: string): R
 						ids.map(
 							async id => {
 								let value = await action('read', `${type}-${id}.json`)
+									.catch((e: Error & { code: string }) => e?.code === 'ERR_OSSL_EVP_WRONG_FINAL_BLOCK_LENGTH')
+
+								while(typeof value === 'boolean' && value) {
+									value = await action('read', `${type}-${id}.json`)
+										.catch((e: Error & { code: string }) => e?.code === 'ERR_OSSL_EVP_WRONG_FINAL_BLOCK_LENGTH')
+								}
+
 								if(type === 'app-state-sync-key' && value) {
 									value = WAProto.Message.AppStateSyncKeyData.fromObject(value)
 								}
