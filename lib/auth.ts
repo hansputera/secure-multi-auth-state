@@ -37,7 +37,7 @@ export const useSafeMultiAuthState = async(key: GeneratedKey, folder: string): R
 					fdr.pipe(decipher).on('data', (ch) => {
 						collected = Buffer.concat([collected, Buffer.from(ch)])
 					}).on('end', () => {
-						const json = JSON.parse(collected.toString('utf8'))
+						const json = JSON.parse(new TextDecoder().decode(collected).toString())
 						if(typeof json === 'object') {
 							decodetoBuffer(json)
 						}
@@ -55,7 +55,12 @@ export const useSafeMultiAuthState = async(key: GeneratedKey, folder: string): R
 					'autoClose': true,
 				})
 
-				Readable.from(Buffer.from(JSON.stringify(data))).pipe(cipher).pipe(fdw)
+				Readable.from(
+					Buffer.from(
+						new TextEncoder()
+							.encode(JSON.stringify(data)),
+					)
+				).pipe(cipher).pipe(fdw)
 					.on('error', reject).on('end', resolve).on('close', resolve)
 				break
 			case 'remove':
