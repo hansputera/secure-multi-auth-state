@@ -15,6 +15,8 @@ export const useSafeMultiAuthState = async(key: GeneratedKey, folder: string): R
 	isOkay(key?.key instanceof Buffer)
 	isOkay(key?.iv instanceof Buffer)
 
+	const encoder = new TextEncoder()
+
 	const action = async<V>(act: Action, file: string, data?: V): Promise<V> => {
 		return await new Promise((resolve, reject) => {
 			switch (act) {
@@ -37,16 +39,12 @@ export const useSafeMultiAuthState = async(key: GeneratedKey, folder: string): R
 					fdr.pipe(decipher).on('data', (ch) => {
 						collected = Buffer.concat([collected, Buffer.from(ch)])
 					}).on('end', async() => {
-						try {
-							const json = JSON.parse(new TextDecoder().decode(collected).toString())
-							if(typeof json === 'object') {
-								decodetoBuffer(json)
-							}
-
-							return resolve(json)
-						} catch{
-							return resolve(await action(act, file, data))
+						const json = JSON.parse(collected.toString())
+						if(typeof json === 'object') {
+							decodetoBuffer(json)
 						}
+
+						return resolve(json)
 					}).on('error', reject)
 				} catch{
 					return resolve(undefined as V)
@@ -61,7 +59,7 @@ export const useSafeMultiAuthState = async(key: GeneratedKey, folder: string): R
 
 				Readable.from(
 					Buffer.from(
-						new TextEncoder()
+						encoder
 							.encode(JSON.stringify(data)),
 					)
 				).pipe(cipher).pipe(fdw)

@@ -1,4 +1,5 @@
 import test from 'ava'
+import { randomBytes } from 'node:crypto'
 import { resolve as pathResolve } from 'node:path'
 import { generateKey, useSafeMultiAuthState } from '../lib'
 
@@ -61,4 +62,30 @@ test('key get 123 -> hello', async(t) => {
 	t.log(res)
 
 	t.is(res[123], 'hello')
+})
+
+test('key sets data', async(t) => {
+	t.log('Preparing state');
+	const state = await useSafeMultiAuthState(key, pathResolve(__dirname, 'sessions'))
+	t.not(state, undefined)
+
+	const objects = {}
+	let i = 0;
+
+	t.log('Previous sessions: ', await state.state.keys.get(
+		'session',
+		new Array(100).fill('')
+			.map(() => Math.floor(Math.random() * 10_000).toString())
+	))
+	while(i < 10) {
+		Reflect.set(objects, Math.floor(Math.random() * 10_000).toString(), {
+			key: randomBytes(32),
+		})
+		i++;
+	}
+
+	await state.state.keys.set({
+		'session': objects,
+	})
+	t.log('done sets')
 })
