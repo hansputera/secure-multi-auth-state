@@ -1,17 +1,12 @@
 import { ok as isOkay } from 'node:assert'
-import { type BinaryLike, scrypt } from 'node:crypto'
+import { type BinaryLike } from 'node:crypto'
+import * as scryptPbkdf from 'scrypt-pbkdf'
 import { type GeneratedKey } from './@types'
 
 const scryptPromise = async(pwd: BinaryLike, salt: BinaryLike, keyLen: number): Promise<Buffer> => {
-	return await new Promise((resolve, reject) => {
-		scrypt(pwd, salt, keyLen, (err, result) => {
-			if(err) {
-				return reject(err)
-			} else {
-				return resolve(result)
-			}
-		})
-	})
+	const pbkdf = await scryptPbkdf.scrypt(pwd, salt, keyLen)
+
+	return Buffer.from(pbkdf)
 }
 
 /**

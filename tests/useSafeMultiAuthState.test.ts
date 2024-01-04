@@ -48,7 +48,7 @@ test('key set 123 -> hello', async(t) => {
 
 	await t.notThrowsAsync(async() => state.state.keys.set({
 		'session': {
-			'123': 'hello',
+			'123': new TextEncoder().encode('Hello World'),
 		}
 	}))
 })
@@ -61,16 +61,16 @@ test('key get 123 -> hello', async(t) => {
 	const res = await state.state.keys.get('session', ['123'])
 	t.log(res)
 
-	t.is(res[123], 'hello')
+	t.is(res[123], new TextEncoder().encode('Hello World'))
 })
 
 test('key sets data', async(t) => {
-	t.log('Preparing state');
+	t.log('Preparing state')
 	const state = await useSafeMultiAuthState(key, pathResolve(__dirname, 'sessions'))
 	t.not(state, undefined)
 
 	const objects = {}
-	let i = 0;
+	let i = 0
 
 	t.log('Previous sessions: ', await state.state.keys.get(
 		'session',
@@ -81,7 +81,7 @@ test('key sets data', async(t) => {
 		Reflect.set(objects, Math.floor(Math.random() * 10_000).toString(), {
 			key: randomBytes(32),
 		})
-		i++;
+		i++
 	}
 
 	await state.state.keys.set({
