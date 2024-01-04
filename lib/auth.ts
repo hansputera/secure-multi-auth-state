@@ -94,30 +94,30 @@ export const useSafeMultiAuthState = async(key: GeneratedKey, folder: string): R
 			creds,
 			keys: {
 				get: async(type, ids) => {
-					const data: { [_: string]: SignalDataTypeMap[typeof type] } = { }
+					const data: { [key: string]: SignalDataTypeMap[typeof type] } = { }
 					await Promise.all(
 						ids.map(
 							async id => {
 								let retryCount = 0
-								let value = await action('read', `${type}-${id}.json`)
+								let value = await action<SignalDataTypeMap[typeof type] | WAProto.Message.AppStateSyncKeyData>('read', `${type}-${id}.json`)
 									.catch((e: Error & { code: string }) => e?.code === 'ERR_OSSL_EVP_WRONG_FINAL_BLOCK_LENGTH')
 
 								while(typeof value === 'boolean' && value && retryCount <= 5) {
 									retryCount++
-									value = await action('read', `${type}-${id}.json`)
+									value = await action<SignalDataTypeMap[typeof type] | WAProto.Message.AppStateSyncKeyData>('read', `${type}-${id}.json`)
 										.catch((e: Error & { code: string }) => e?.code === 'ERR_OSSL_EVP_WRONG_FINAL_BLOCK_LENGTH')
 								}
 
-								if(typeof value === 'boolean') { // retry count reached
-									data[id] = undefined
-									return
-								}
+								// if(typeof value === 'boolean') { // retry count reached
+								// 	data[id] = undefined
+								// 	return
+								// }
 
 								if(type === 'app-state-sync-key' && value) {
-									value = WAProto.Message.AppStateSyncKeyData.fromObject(value)
+									value = WAProto.Message.AppStateSyncKeyData.fromObject(value as WAProto.Message.AppStateSyncKeyData)
 								}
 
-								data[id] = value
+								data[id] = value as SignalDataTypeMap[typeof type]
 							}
 						)
 					)
