@@ -61,7 +61,8 @@ test('key get 123 -> hello', async(t) => {
 	const res = await state.state.keys.get('session', ['123'])
 	t.log(res)
 
-	t.is(res[123], new TextEncoder().encode('Hello World'))
+	const testDecode = new TextDecoder().decode(res[123])
+	t.is(testDecode, 'Hello World')
 })
 
 test('key sets data', async(t) => {

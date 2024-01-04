@@ -32,3 +32,8 @@ export const decodetoBuffer = <T extends Object>(object: T): void => {
 
 	return
 }
+
+export const convertNumsRecordToUint8Array = (items: Record<number, number>): Uint8Array => {
+	const orders = Object.keys(items).map(x => Number.parseInt(x)).sort((a, b) => a - b)
+	return Uint8Array.from(orders.map(x => items[x]))
+}

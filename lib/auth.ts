@@ -6,7 +6,7 @@ import { mkdir, stat } from 'node:fs/promises'
 import { join as pathJoin } from 'node:path'
 import { Readable } from 'node:stream'
 import { type GeneratedKey } from './@types'
-import { decodetoBuffer } from './util'
+import { convertNumsRecordToUint8Array, decodetoBuffer } from './util'
 
 type Action = 'write' | 'read' | 'remove';
 const fixFileName = (file?: string) => file?.replace(/\//g, '__')?.replace(/:/g, '-')
@@ -114,7 +114,11 @@ export const useSafeMultiAuthState = async(key: GeneratedKey, folder: string): R
 								// }
 
 								if(type === 'app-state-sync-key' && value) {
-									value = WAProto.Message.AppStateSyncKeyData.fromObject(value as WAProto.Message.AppStateSyncKeyData)
+									value = WAProto.Message.AppStateSyncKeyData.fromObject(value as Record<string, string>)
+								}
+
+								if(type === 'sender-key' || type === 'session' && value) {
+									value = convertNumsRecordToUint8Array(value as Record<number, number>) as SignalDataTypeMap[typeof type]
 								}
 
 								data[id] = value as SignalDataTypeMap[typeof type]

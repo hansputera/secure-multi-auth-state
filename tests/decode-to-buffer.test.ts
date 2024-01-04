@@ -24,5 +24,6 @@ test('should decode string auth correctly', async(t) => {
 	t.notDeepEqual(credsEncoded.signedPreKey, creds.signedPreKey)
 
 	Util.decodetoBuffer(credsEncoded)
+
 	t.deepEqual(credsEncoded, creds)
 })
